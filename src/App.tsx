@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, HardDrive, DollarSign, Percent, Calendar, Sparkles, Tag, Server, Users, TrendingUp, RefreshCw, Wallet } from 'lucide-react';
+import { Camera, HardDrive, DollarSign, Percent, Calendar, Tag, Server, Users, TrendingUp, Wallet } from 'lucide-react';
 
 const PRECOS_BASE = {
   3: 24.9,
@@ -12,15 +12,6 @@ export default function App() {
   const [plano, setPlano] = useState<3 | 7 | 30>(7);
   const [margem, setMargem] = useState<number>(30);
   const [meses, setMeses] = useState<number>(12);
-  const [ia, setIa] = useState<boolean>(false);
-
-  const handleReset = () => {
-    setCameras(100);
-    setPlano(7);
-    setMargem(30);
-    setMeses(12);
-    setIa(false);
-  };
 
   // Lógica de Tiers de Desconto
   const getDiscountPercent = (qtdCameras: number) => {
@@ -31,7 +22,7 @@ export default function App() {
   };
 
   // Cálculos do Simulador
-  const custoBaseUnitario = PRECOS_BASE[plano] + (ia ? 10 : 0);
+  const custoBaseUnitario = PRECOS_BASE[plano];
   const custoDaPlataforma = cameras * custoBaseUnitario;
   
   const discountPercent = getDiscountPercent(cameras);
@@ -157,35 +148,7 @@ export default function App() {
                     className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#7B48EA] focus:border-transparent transition-all"
                   />
                 </div>
-
-                {/* IA Checkbox */}
-                <div className="pt-2">
-                  <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-700 bg-[#0f172a] cursor-pointer hover:border-[#7B48EA]/50 transition-colors group">
-                    <div className="relative flex items-center justify-center">
-                      <input
-                        type="checkbox"
-                        checked={ia}
-                        onChange={(e) => setIa(e.target.checked)}
-                        className="peer appearance-none w-6 h-6 border-2 border-slate-600 rounded-md checked:bg-[#7B48EA] checked:border-[#7B48EA] transition-all cursor-pointer"
-                      />
-                      <Sparkles size={14} className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-medium text-slate-200 group-hover:text-white transition-colors">Adicionar IA</span>
-                      <span className="text-xs text-slate-500">+ R$ 10,00 por câmera</span>
-                    </div>
-                  </label>
-                </div>
               </div>
-
-              {/* Botão Limpar Tudo */}
-              <button 
-                onClick={handleReset}
-                className="mt-8 w-full py-3.5 rounded-xl border border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-500 transition-all flex items-center justify-center gap-2 font-medium"
-              >
-                <RefreshCw size={18} />
-                Limpar Tudo
-              </button>
             </div>
           </div>
 
