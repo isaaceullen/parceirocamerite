@@ -29,10 +29,9 @@ export default function App() {
   const descontoParceria = custoDaPlataforma * discountPercent;
   
   const totalDaPlataforma = custoDaPlataforma - descontoParceria;
-  const margemValor = custoDaPlataforma * (margem / 100);
   
-  const precoFinalCliente = totalDaPlataforma + margemValor;
-  const ganhoMes = margemValor + descontoParceria;
+  const precoFinalCliente = totalDaPlataforma * (1 + (margem / 100));
+  const ganhoMes = precoFinalCliente - totalDaPlataforma;
   const ganhoAcumulado = ganhoMes * meses;
 
   const formatCurrency = (value: number) => {
