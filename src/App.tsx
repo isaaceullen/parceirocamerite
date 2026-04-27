@@ -42,7 +42,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-slate-50 font-sans selection:bg-[#7B48EA]/30 pb-20">
+    <div className="h-[100dvh] w-full overflow-y-auto scroll-smooth bg-[#0f172a] text-slate-50 font-sans selection:bg-[#7B48EA]/30 pb-20">
       {/* Header */}
       <header className="border-b border-slate-800 bg-[#0f172a]/90 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
