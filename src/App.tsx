@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Camera, HardDrive, DollarSign, Percent, Calendar, Tag, Server, Users, TrendingUp, Wallet } from 'lucide-react';
+import { Camera, HardDrive, DollarSign, Percent, Calendar, Tag, Server, Users, TrendingUp, Wallet, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 const PRECOS_BASE = {
   3: 24.9,
@@ -12,6 +13,17 @@ export default function App() {
   const [plano, setPlano] = useState<3 | 7 | 30>(7);
   const [margem, setMargem] = useState<number>(30);
   const [meses, setMeses] = useState<number>(12);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    nome: '',
+    email: '',
+    whatsapp: '',
+    cidade: '',
+    empresa: '',
+    cargo: ''
+  });
 
   // Lógica de Tiers de Desconto
   const getDiscountPercent = (qtdCameras: number) => {
@@ -41,8 +53,19 @@ export default function App() {
     }).format(value);
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app we would send data to a backend here
+    window.location.href = 'https://camerite.com/obrigado';
+  };
+
   return (
-    <div className="h-[100dvh] w-full overflow-y-auto scroll-smooth bg-[#0f172a] text-slate-50 font-sans selection:bg-[#7B48EA]/30 pb-20">
+    <div className={`h-[100dvh] w-full overflow-y-auto scroll-smooth bg-[#0f172a] text-slate-50 font-sans selection:bg-[#7B48EA]/30 pb-10 ${isModalOpen ? 'overflow-hidden' : ''}`}>
       {/* Header */}
       <header className="border-b border-slate-800 bg-[#0f172a]/90 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
@@ -56,13 +79,23 @@ export default function App() {
       </header>
 
       <main className="container mx-auto px-4 py-10 max-w-7xl">
-        <div className="mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-3">
-            Simulador de Ganhos
-          </h2>
-          <p className="text-slate-400 text-lg">
-            Configure seu cenário e descubra o potencial de receita recorrente.
-          </p>
+        <div className="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div className="flex-1">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-3">
+              Simulador de Ganhos
+            </h2>
+            <p className="text-slate-400 text-lg">
+              Configure seu cenário e descubra o potencial de receita recorrente.
+            </p>
+          </div>
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsModalOpen(true)}
+            className="whitespace-nowrap bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-4 px-8 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 flex items-center justify-center gap-2 text-lg"
+          >
+            Fale Conosco
+          </motion.button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
@@ -238,7 +271,149 @@ export default function App() {
           </div>
 
         </div>
+
+        {/* Footer with Secondary Button */}
+        <div className="mt-20 border-t border-slate-800 pt-10 text-center">
+          <p className="text-slate-400 mb-6 font-medium">Ficou com alguma dúvida? Nossa equipe está pronta para te atender.</p>
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsModalOpen(true)}
+            className="bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-4 px-12 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 inline-flex items-center gap-2 text-lg"
+          >
+            Fale Conosco
+          </motion.button>
+          <p className="mt-10 text-sm text-slate-500">© {new Date().getFullYear()} Camerite. Todos os direitos reservados.</p>
+        </div>
       </main>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Overlay */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+              onClick={() => setIsModalOpen(false)}
+            />
+            
+            {/* Card */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative bg-[#1e293b] border border-slate-700 w-full max-w-xl rounded-3xl p-8 shadow-2xl"
+            >
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-6 right-6 p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-full transition-all"
+              >
+                <X size={24} />
+              </button>
+
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold text-white mb-2">Fale Conosco</h3>
+                <p className="text-slate-400">Preencha os dados abaixo e entramos em contato em breve.</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Nome</label>
+                    <input 
+                      required
+                      type="text"
+                      name="nome"
+                      value={formData.nome}
+                      onChange={handleInputChange}
+                      placeholder="Seu nome completo"
+                      className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Email</label>
+                    <input 
+                      required
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="seu@email.com"
+                      className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">WhatsApp</label>
+                    <input 
+                      required
+                      type="tel"
+                      name="whatsapp"
+                      value={formData.whatsapp}
+                      onChange={handleInputChange}
+                      placeholder="(00) 00000-0000"
+                      className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Cidade</label>
+                    <input 
+                      required
+                      type="text"
+                      name="cidade"
+                      value={formData.cidade}
+                      onChange={handleInputChange}
+                      placeholder="Sua cidade / UF"
+                      className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Empresa</label>
+                    <input 
+                      required
+                      type="text"
+                      name="empresa"
+                      value={formData.empresa}
+                      onChange={handleInputChange}
+                      placeholder="Nome da sua empresa"
+                      className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Cargo</label>
+                    <input 
+                      required
+                      type="text"
+                      name="cargo"
+                      value={formData.cargo}
+                      onChange={handleInputChange}
+                      placeholder="Seu cargo"
+                      className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
+                    />
+                  </div>
+                </div>
+
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  className="w-full mt-4 bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-4 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 text-lg"
+                >
+                  Enviar Solicitação
+                </motion.button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
