@@ -14,6 +14,7 @@ export default function App() {
   const [margem, setMargem] = useState<number>(30);
   const [meses, setMeses] = useState<number>(12);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -58,10 +59,23 @@ export default function App() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app we would send data to a backend here
-    window.location.href = 'https://camerite.com/obrigado';
+    setIsSubmitting(true);
+    
+    try {
+      await fetch('https://n8n.srv1273018.hstgr.cloud/webhook/html-kommo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+    } catch (error) {
+      console.error('Erro ao enviar lead:', error);
+    } finally {
+      window.location.href = 'https://camerite.com/obrigado';
+    }
   };
 
   return (
@@ -290,126 +304,131 @@ export default function App() {
       {/* Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4">
             {/* Overlay */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm"
               onClick={() => setIsModalOpen(false)}
             />
             
-            {/* Card */}
+            {/* Card - Embed Optimized */}
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative bg-[#1e293b] border border-slate-700 w-full max-w-xl rounded-3xl p-8 shadow-2xl"
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="relative bg-[#1e293b] border border-slate-700 w-full max-w-xl rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[95%]"
             >
+              {/* Close Button - Fixed relative to card header */}
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-6 right-6 p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-full transition-all"
+                className="absolute top-4 right-4 z-10 p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-full transition-all"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
 
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold text-white mb-2">Fale Conosco</h3>
-                <p className="text-slate-400">Preencha os dados abaixo e entramos em contato em breve.</p>
+              {/* Scrollable Content Area */}
+              <div className="overflow-y-auto p-6 sm:p-8 custom-scrollbar">
+                <div className="mb-6 pr-8">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">Fale Conosco</h3>
+                  <p className="text-sm text-slate-400">Preencha os dados e entramos em contato em breve.</p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Nome</label>
+                      <input 
+                        required
+                        type="text"
+                        name="nome"
+                        value={formData.nome}
+                        onChange={handleInputChange}
+                        placeholder="Nome completo"
+                        className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Email</label>
+                      <input 
+                        required
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="seu@email.com"
+                        className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">WhatsApp</label>
+                      <input 
+                        required
+                        type="tel"
+                        name="whatsapp"
+                        value={formData.whatsapp}
+                        onChange={handleInputChange}
+                        placeholder="(00) 00000-0000"
+                        className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Cidade</label>
+                      <input 
+                        required
+                        type="text"
+                        name="cidade"
+                        value={formData.cidade}
+                        onChange={handleInputChange}
+                        placeholder="Cidade / UF"
+                        className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Empresa</label>
+                      <input 
+                        required
+                        type="text"
+                        name="empresa"
+                        value={formData.empresa}
+                        onChange={handleInputChange}
+                        placeholder="Nome da empresa"
+                        className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Cargo</label>
+                      <input 
+                        required
+                        type="text"
+                        name="cargo"
+                        value={formData.cargo}
+                        onChange={handleInputChange}
+                        placeholder="Seu cargo"
+                        className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <motion.button 
+                    whileHover={!isSubmitting ? { scale: 1.01 } : {}}
+                    whileTap={!isSubmitting ? { scale: 0.99 } : {}}
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={`w-full mt-6 bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 text-base ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                  >
+                    {isSubmitting ? 'Enviando...' : 'Enviar Solicitação'}
+                  </motion.button>
+                </form>
               </div>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Nome</label>
-                    <input 
-                      required
-                      type="text"
-                      name="nome"
-                      value={formData.nome}
-                      onChange={handleInputChange}
-                      placeholder="Seu nome completo"
-                      className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Email</label>
-                    <input 
-                      required
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      placeholder="seu@email.com"
-                      className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">WhatsApp</label>
-                    <input 
-                      required
-                      type="tel"
-                      name="whatsapp"
-                      value={formData.whatsapp}
-                      onChange={handleInputChange}
-                      placeholder="(00) 00000-0000"
-                      className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Cidade</label>
-                    <input 
-                      required
-                      type="text"
-                      name="cidade"
-                      value={formData.cidade}
-                      onChange={handleInputChange}
-                      placeholder="Sua cidade / UF"
-                      className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Empresa</label>
-                    <input 
-                      required
-                      type="text"
-                      name="empresa"
-                      value={formData.empresa}
-                      onChange={handleInputChange}
-                      placeholder="Nome da sua empresa"
-                      className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Cargo</label>
-                    <input 
-                      required
-                      type="text"
-                      name="cargo"
-                      value={formData.cargo}
-                      onChange={handleInputChange}
-                      placeholder="Seu cargo"
-                      className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#5CE6AC] transition-all"
-                    />
-                  </div>
-                </div>
-
-                <motion.button 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  className="w-full mt-4 bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-4 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 text-lg"
-                >
-                  Enviar Solicitação
-                </motion.button>
-              </form>
             </motion.div>
           </div>
         )}
