@@ -102,14 +102,7 @@ export default function App() {
               Configure seu cenário e descubra o potencial de receita recorrente.
             </p>
           </div>
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsModalOpen(true)}
-            className="whitespace-nowrap bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-4 px-8 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 flex items-center justify-center gap-2 text-lg"
-          >
-            Fale Conosco
-          </motion.button>
+
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
@@ -288,15 +281,7 @@ export default function App() {
 
         {/* Footer with Secondary Button */}
         <div className="mt-20 border-t border-slate-800 pt-10 text-center">
-          <p className="text-slate-400 mb-6 font-medium">Ficou com alguma dúvida? Nossa equipe está pronta para te atender.</p>
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsModalOpen(true)}
-            className="bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-4 px-12 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 inline-flex items-center gap-2 text-lg"
-          >
-            Fale Conosco
-          </motion.button>
+
           <p className="mt-10 text-sm text-slate-500">© {new Date().getFullYear()} Camerite. Todos os direitos reservados.</p>
         </div>
       </main>
