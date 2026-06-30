@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface AdminSettings {
-  globalEnabled: boolean;
+  generalEnabled: boolean;
   headerEnabled: boolean;
   footerEnabled: boolean;
   footerTitle: string;
@@ -13,33 +13,19 @@ interface AdminContextType {
 }
 
 const defaultSettings: AdminSettings = {
-  globalEnabled: true,
+  generalEnabled: true,
   headerEnabled: true,
   footerEnabled: true,
-  footerTitle: "Ficou com alguma dúvida? Nossa equipe está pronta para te atender.",
+  footerTitle: 'Ficou com alguma dúvida? Nossa equipe está pronta para te atender.',
 };
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
-export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [settings, setSettings] = useState<AdminSettings>(() => {
-    const saved = localStorage.getItem('adminSettings');
-    if (saved) {
-      try {
-        return { ...defaultSettings, ...JSON.parse(saved) };
-      } catch (e) {
-        return defaultSettings;
-      }
-    }
-    return defaultSettings;
-  });
+export function AdminProvider({ children }: { children: ReactNode }) {
+  const [settings, setSettings] = useState<AdminSettings>(defaultSettings);
 
   const updateSettings = (newSettings: Partial<AdminSettings>) => {
-    setSettings(prev => {
-      const updated = { ...prev, ...newSettings };
-      localStorage.setItem('adminSettings', JSON.stringify(updated));
-      return updated;
-    });
+    setSettings((prev) => ({ ...prev, ...newSettings }));
   };
 
   return (
@@ -47,12 +33,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {children}
     </AdminContext.Provider>
   );
-};
+}
 
-export const useAdmin = () => {
+export function useAdmin() {
   const context = useContext(AdminContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAdmin must be used within an AdminProvider');
   }
   return context;
-};
+}

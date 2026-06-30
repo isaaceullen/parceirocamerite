@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Camera, HardDrive, DollarSign, Percent, Calendar, Tag, Server, Users, TrendingUp, Wallet, X, Settings } from 'lucide-react';
+import { Camera, HardDrive, DollarSign, Percent, Calendar, Tag, Server, Users, TrendingUp, Wallet, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAdmin } from '../context/AdminContext';
-import { Link } from 'react-router-dom';
 
 const PRECOS_BASE = {
   3: 24.9,
@@ -10,8 +9,11 @@ const PRECOS_BASE = {
   30: 59.9,
 };
 
-export default function Home() {
+export default function HomePage() {
   const { settings } = useAdmin();
+  const showHeaderBtn = settings.generalEnabled && settings.headerEnabled;
+  const showFooterBtn = settings.generalEnabled && settings.footerEnabled;
+
   const [cameras, setCameras] = useState<number>(100);
   const [plano, setPlano] = useState<3 | 7 | 30>(7);
   const [margem, setMargem] = useState<number>(30);
@@ -105,21 +107,16 @@ export default function Home() {
               Configure seu cenário e descubra o potencial de receita recorrente.
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <Link to="/admin" className="p-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-all shadow-lg flex items-center justify-center">
-              <Settings size={24} />
-            </Link>
-            {settings.globalEnabled && settings.headerEnabled && (
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsModalOpen(true)}
-                className="whitespace-nowrap bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-4 px-8 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 flex items-center justify-center gap-2 text-lg"
-              >
-                Fale Conosco
-              </motion.button>
-            )}
-          </div>
+          {showHeaderBtn && (
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsModalOpen(true)}
+              className="whitespace-nowrap bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-4 px-8 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 flex items-center justify-center gap-2 text-lg"
+            >
+              Fale Conosco
+            </motion.button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
@@ -298,16 +295,18 @@ export default function Home() {
 
         {/* Footer with Secondary Button */}
         <div className="mt-20 border-t border-slate-800 pt-10 text-center">
-          <p className="text-slate-400 mb-6 font-medium">{settings.footerTitle}</p>
-          {settings.globalEnabled && settings.footerEnabled && (
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsModalOpen(true)}
-              className="bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-4 px-12 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 inline-flex items-center gap-2 text-lg"
-            >
-              Fale Conosco
-            </motion.button>
+          {showFooterBtn && (
+            <>
+              <p className="text-slate-400 mb-6 font-medium">{settings.footerTitle}</p>
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsModalOpen(true)}
+                className="bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-4 px-12 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 inline-flex items-center gap-2 text-lg"
+              >
+                Fale Conosco
+              </motion.button>
+            </>
           )}
           <p className="mt-10 text-sm text-slate-500">© {new Date().getFullYear()} Camerite. Todos os direitos reservados.</p>
         </div>
