@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Camera, HardDrive, DollarSign, Percent, Calendar, Tag, Server, Users, TrendingUp, Wallet, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Camera, HardDrive, DollarSign, Percent, Calendar, Tag, Server, Users, TrendingUp, Wallet, X, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const PRECOS_BASE = {
@@ -8,7 +8,186 @@ const PRECOS_BASE = {
   30: 59.9,
 };
 
+interface AppSettings {
+  globalEnabled: boolean;
+  showTopHeaderButton: boolean;
+  showFooterButton: boolean;
+  footerSectionTitle: string;
+}
+
+const DEFAULT_SETTINGS: AppSettings = {
+  globalEnabled: true,
+  showTopHeaderButton: true,
+  showFooterButton: true,
+  footerSectionTitle: 'Ficou com alguma dúvida? Nossa equipe está pronta para te atender.',
+};
+
 export default function App() {
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    const saved = localStorage.getItem('@camerite:settings');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return DEFAULT_SETTINGS;
+      }
+    }
+    return DEFAULT_SETTINGS;
+  });
+
+  useEffect(() => {
+    const handleLocationChange = () => setCurrentPath(window.location.pathname);
+    window.addEventListener('popstate', handleLocationChange);
+    return () => window.removeEventListener('popstate', handleLocationChange);
+  }, []);
+
+  const saveSettings = (newSettings: AppSettings) => {
+    setSettings(newSettings);
+    localStorage.setItem('@camerite:settings', JSON.stringify(newSettings));
+  };
+
+  if (currentPath === '/admin') {
+    return <AdminPanel settings={settings} onSave={saveSettings} onBack={() => {
+      window.history.pushState({}, '', '/');
+      setCurrentPath('/');
+    }} />;
+  }
+
+  return <MainApp settings={settings} />;
+}
+
+function AdminPanel({ 
+  settings, 
+  onSave, 
+  onBack 
+}: { 
+  settings: AppSettings, 
+  onSave: (s: AppSettings) => void,
+  onBack: () => void 
+}) {
+  const [localSettings, setLocalSettings] = useState<AppSettings>(settings);
+  const [savedMessage, setSavedMessage] = useState(false);
+
+  const handleChange = (key: keyof AppSettings, value: any) => {
+    setLocalSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSave = () => {
+    onSave(localSettings);
+    setSavedMessage(true);
+    setTimeout(() => setSavedMessage(false), 3000);
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0f172a] text-slate-50 font-sans p-6 md:p-12">
+      <div className="max-w-2xl mx-auto">
+        <button 
+          onClick={onBack}
+          className="mb-8 text-slate-400 hover:text-white flex items-center gap-2 transition-colors"
+        >
+          &larr; Voltar para o Simulador
+        </button>
+
+        <div className="bg-[#1e293b] border border-slate-800 rounded-3xl p-8 shadow-xl">
+          <div className="flex items-center gap-3 mb-8 pb-6 border-b border-slate-700/50">
+            <div className="p-3 bg-[#7B48EA]/20 rounded-xl text-[#A785F1]">
+              <Settings size={24} />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-white">Painel Administrativo</h2>
+              <p className="text-slate-400">Configure a exibição dos botões de contato</p>
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            {/* Global Toggle */}
+            <div className="flex items-center justify-between p-4 bg-[#0f172a] rounded-xl border border-slate-800">
+              <div>
+                <h3 className="font-semibold text-white">Ativar Botões "Fale Conosco"</h3>
+                <p className="text-sm text-slate-400">Liga ou desliga todos os botões de captação globalmente</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={localSettings.globalEnabled}
+                  onChange={(e) => handleChange('globalEnabled', e.target.checked)}
+                />
+                <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#5CE6AC]"></div>
+              </label>
+            </div>
+
+            <div className={`space-y-6 transition-opacity duration-300 ${!localSettings.globalEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
+              {/* Header Toggle */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-slate-200">Botão do Topo (Header)</h3>
+                  <p className="text-sm text-slate-500">Exibir botão de contato ao lado do título</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer" 
+                    checked={localSettings.showTopHeaderButton}
+                    onChange={(e) => handleChange('showTopHeaderButton', e.target.checked)}
+                  />
+                  <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#7B48EA]"></div>
+                </label>
+              </div>
+
+              {/* Footer Toggle */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-slate-200">Botão do Rodapé (Footer)</h3>
+                  <p className="text-sm text-slate-500">Exibir seção de contato no final da página</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer" 
+                    checked={localSettings.showFooterButton}
+                    onChange={(e) => handleChange('showFooterButton', e.target.checked)}
+                  />
+                  <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#7B48EA]"></div>
+                </label>
+              </div>
+
+              {/* Footer Title Input */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">
+                  Título da Seção de Rodapé
+                </label>
+                <input
+                  type="text"
+                  value={localSettings.footerSectionTitle}
+                  onChange={(e) => handleChange('footerSectionTitle', e.target.value)}
+                  className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#7B48EA] transition-all"
+                  placeholder="Ex: Ficou com alguma dúvida?"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10 pt-6 border-t border-slate-700/50 flex items-center justify-between">
+            <span className={`text-[#5CE6AC] font-medium text-sm transition-opacity ${savedMessage ? 'opacity-100' : 'opacity-0'}`}>
+              Configurações salvas!
+            </span>
+            <button 
+              onClick={handleSave}
+              className="bg-[#7B48EA] hover:bg-[#6c3fd1] text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-[#7B48EA]/20"
+            >
+              Salvar Configurações
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MainApp({ settings }: { settings: AppSettings }) {
   const [cameras, setCameras] = useState<number>(100);
   const [plano, setPlano] = useState<3 | 7 | 30>(7);
   const [margem, setMargem] = useState<number>(30);
@@ -102,14 +281,16 @@ export default function App() {
               Configure seu cenário e descubra o potencial de receita recorrente.
             </p>
           </div>
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsModalOpen(true)}
-            className="whitespace-nowrap bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-4 px-8 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 flex items-center justify-center gap-2 text-lg"
-          >
-            Fale Conosco
-          </motion.button>
+          {settings.globalEnabled && settings.showTopHeaderButton && (
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsModalOpen(true)}
+              className="whitespace-nowrap bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-4 px-8 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 flex items-center justify-center gap-2 text-lg"
+            >
+              Fale Conosco
+            </motion.button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
@@ -287,18 +468,20 @@ export default function App() {
         </div>
 
         {/* Footer with Secondary Button */}
-        <div className="mt-20 border-t border-slate-800 pt-10 text-center">
-          <p className="text-slate-400 mb-6 font-medium">Ficou com alguma dúvida? Nossa equipe está pronta para te atender.</p>
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsModalOpen(true)}
-            className="bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-4 px-12 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 inline-flex items-center gap-2 text-lg"
-          >
-            Fale Conosco
-          </motion.button>
-          <p className="mt-10 text-sm text-slate-500">© {new Date().getFullYear()} Camerite. Todos os direitos reservados.</p>
-        </div>
+        {settings.globalEnabled && settings.showFooterButton && (
+          <div className="mt-20 border-t border-slate-800 pt-10 text-center">
+            <p className="text-slate-400 mb-6 font-medium">{settings.footerSectionTitle}</p>
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsModalOpen(true)}
+              className="bg-[#5CE6AC] hover:bg-[#4dd39b] text-[#0f172a] font-bold py-4 px-12 rounded-xl transition-all shadow-lg shadow-[#5CE6AC]/20 inline-flex items-center gap-2 text-lg"
+            >
+              Fale Conosco
+            </motion.button>
+            <p className="mt-10 text-sm text-slate-500">© {new Date().getFullYear()} Camerite. Todos os direitos reservados.</p>
+          </div>
+        )}
       </main>
 
       {/* Modal */}
